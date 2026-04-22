@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameHub — Boutique PC Premium · Ouagadougou</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --void:#03020a;
+  --deep:#07050f;
+  --card:#0d0b1a;
+  --card2:#120f22;
+  --card3:#1a1630;
+  --cyan:#00f5ff;
+  --cyan-dim:rgba(0,245,255,0.15);
+  --magenta:#ff00aa;
+  --mag-dim:rgba(255,0,170,0.15);
+  --gold:#ffd700;
+  --lime:#39ff14;
+  --green:#22c55e;
+  --red:#ff3060;
+  --text:#e8e0ff;
+  --muted:#6b5f8a;
+  --muted2:#9080b0;
+  --border:rgba(0,245,255,0.1);
+  --border2:rgba(0,245,255,0.2);
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:'Exo 2',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:none;
+}
+a{color:inherit;text-decoration:none;}
+button{cursor:none;}
+img{display:block;}
+
+/* ═══════════════════════════════════════════
+   CURSOR CUSTOM
+═══════════════════════════════════════════ */
+#cur{
+  position:fixed;width:10px;height:10px;border-radius:50%;
+  background:var(--cyan);pointer-events:none;z-index:9999;
+  transition:transform 0.08s;mix-blend-mode:screen;
+  box-shadow:0 0 16px var(--cyan),0 0 4px #fff;
+  transform:translate(-50%,-50%);
+}
+#cur-ring{
+  position:fixed;width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(0,245,255,0.45);pointer-events:none;z-index:9998;
+  transition:all 0.18s ease;transform:translate(-50%,-50%);
+}
+body:has(button:hover) #cur{transform:translate(-50%,-50%) scale(1.8);background:var(--magenta);}
+body:has(button:hover) #cur-ring{transform:translate(-50%,-50%) scale(1.3);border-color:var(--magenta);}
+
+/* ═══════════════════════════════════════════
+   CANVAS PARTICLES
+═══════════════════════════════════════════ */
+#cvs{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+/* SCANLINES */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);
+}
+
+/* NOISE OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat;background-size:200px;
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;height:66px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;
+  background:rgba(3,2,10,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+nav::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--cyan) 30%,var(--magenta) 70%,transparent 100%);
+  animation:navglow 4s ease-in-out infinite;
+}
+@keyframes navglow{0%,100%{opacity:.3;filter:blur(0)}50%{opacity:1;filter:blur(1px)}}
+
+.logo{
+  font-family:'Orbitron',monospace;font-size:1.35rem;font-weight:900;
+  letter-spacing:3px;cursor:pointer;
+  background:linear-gradient(135deg,var(--cyan),var(--magenta));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 10px rgba(0,245,255,0.4));
+  transition:filter 0.3s;
+}
+.logo:hover{filter:drop-shadow(0 0 20px rgba(0,245,255,0.7));}
+.logo span{-webkit-text-fill-color:var(--gold);filter:drop-shadow(0 0 6px rgba(255,215,0,0.5));}
+
+.nav-links{display:flex;gap:0.2rem;}
+.nav-btn{
+  background:none;border:none;color:var(--muted2);
+  padding:0.5rem 1.1rem;border-radius:8px;cursor:pointer;
+  font-family:'Exo 2',sans-serif;font-size:0.82rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.nav-btn::before{
+  content:'';position:absolute;inset:0;border-radius:8px;
+  background:linear-gradient(135deg,rgba(0,245,255,0.08),rgba(255,0,170,0.08));
+  opacity:0;transition:opacity 0.3s;
+}
+.nav-btn::after{
+  content:'';position:absolute;bottom:5px;left:50%;right:50%;
+  height:1px;background:var(--cyan);transition:all 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-btn:hover,.nav-btn.active{color:var(--text);}
+.nav-btn:hover::before,.nav-btn.active::before{opacity:1;}
+.nav-btn:hover::after,.nav-btn.active::after{left:15%;right:15%;background:var(--magenta);}
+.nav-btn.active{color:var(--cyan);}
+.nav-btn.active::after{left:15%;right:15%;background:var(--cyan);}
+
+.cart-nav{
+  display:flex;align-items:center;gap:0.5rem;
+  background:linear-gradient(135deg,rgba(0,245,255,0.1),rgba(255,0,170,0.08));
+  border:1px solid rgba(0,245,255,0.25);
+  color:var(--cyan);padding:0.45rem 1.2rem;border-radius:10px;
+  cursor:pointer;font-family:'Exo 2',sans-serif;font-size:0.82rem;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;
+  transition:all 0.3s;
+}
+.cart-nav:hover{background:rgba(0,245,255,0.2);box-shadow:0 0 25px rgba(0,245,255,0.25);}
+.cart-badge{
+  background:var(--magenta);color:#fff;
+  min-width:20px;height:20px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:900;padding:0 5px;
+  box-shadow:0 0 10px rgba(255,0,170,0.5);
+  transition:transform 0.2s;
+}
+
+/* HAMBURGER MOBILE */
+.hamburger{display:none;background:none;border:none;color:var(--cyan);font-size:1.4rem;cursor:pointer;}
+
+/* ═══════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════ */
+.page{display:none;position:relative;z-index:2;}
+.page.active{display:block;animation:pageIn 0.5s cubic-bezier(0.16,1,0.3,1);}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:80px 2rem 4rem;
+  position:relative;overflow:hidden;
+}
+/* Animated grid bg */
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,255,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  animation:gridScroll 20s linear infinite;
+  mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);
+}
+@keyframes gridScroll{0%{background-position:0 0}100%{background-position:60px 60px}}
+
+/* Orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:orb-float 10s ease-in-out infinite;}
+.o1{width:500px;height:500px;background:rgba(0,245,255,0.06);top:-10%;left:-10%;animation-delay:-4s;}
+.o2{width:600px;height:600px;background:rgba(255,0,170,0.05);top:10%;right:-15%;animation-delay:-8s;}
+.o3{width:350px;height:350px;background:rgba(255,215,0,0.04);bottom:-5%;left:30%;animation-delay:-2s;}
+@keyframes orb-float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-30px) scale(1.04)}66%{transform:translate(-15px,15px) scale(0.97)}}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  background:rgba(0,245,255,0.06);
+  border:1px solid rgba(0,245,255,0.3);
+  color:var(--cyan);padding:0.4rem 1.2rem;border-radius:30px;
+  font-size:0.72rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:2.5rem;position:relative;
+  animation:fadeUp 0.8s ease both;
+}
+.hero-badge::before{
+  content:'';position:absolute;inset:-1px;border-radius:30px;
+  background:linear-gradient(135deg,var(--cyan),var(--magenta));
+  z-index:-1;opacity:0;animation:badgePulse 3s ease-in-out infinite;
+}
+@keyframes badgePulse{0%,100%{opacity:0}50%{opacity:0.3}}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:dotBlink 1.5s ease-in-out infinite;}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.hero h1{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(2.2rem,6.5vw,5.5rem);font-weight:900;
+  line-height:1.05;margin-bottom:1.8rem;position:relative;
+}
+.hero h1 .l1{
+  display:block;color:var(--text);
+  animation:fadeUp 0.8s 0.1s ease both;
+  text-shadow:0 0 80px rgba(0,245,255,0.15);
+}
+.hero h1 .l2{
+  display:block;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--gold),var(--cyan));
+  background-size:300%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:fadeUp 0.8s 0.2s ease both, gradShift 5s linear infinite;
+}
+@keyframes gradShift{0%{background-position:0%}100%{background-position:300%}}
+
+.hero-sub{
+  color:var(--muted2);font-size:1.1rem;line-height:1.7;
+  max-width:560px;margin-bottom:3rem;
+  animation:fadeUp 0.8s 0.3s ease both;
+}
+.hero-sub strong{color:var(--cyan);}
+
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.8s 0.4s ease both;}
+
+.btn-glow{
+  background:linear-gradient(135deg,var(--cyan),#0099bb);
+  color:#000;border:none;padding:0.9rem 2.2rem;border-radius:12px;
+  font-family:'Exo 2',sans-serif;font-size:0.88rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.3s;
+  box-shadow:0 0 30px rgba(0,245,255,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
+  position:relative;overflow:hidden;
+}
+.btn-glow::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  transition:left 0.5s;
+}
+.btn-glow:hover::after{left:100%;}
+.btn-glow:hover{box-shadow:0 0 55px rgba(0,245,255,0.6),inset 0 1px 0 rgba(255,255,255,0.3);transform:translateY(-3px);}
+
+.btn-outline-hero{
+  background:transparent;color:var(--text);
+  border:1px solid rgba(255,255,255,0.18);padding:0.9rem 2.2rem;border-radius:12px;
+  font-family:'Exo 2',sans-serif;font-size:0.88rem;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;
+}
+.btn-outline-hero:hover{
+  border-color:var(--magenta);color:var(--magenta);
+  box-shadow:0 0 30px rgba(255,0,170,0.25);transform:translateY(-3px);
+}
+
+/* HERO STATS */
+.hero-stats{
+  display:flex;gap:3rem;margin-top:5rem;
+  animation:fadeUp 0.8s 0.6s ease both;
+}
+.hstat{text-align:center;}
+.hstat-num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--cyan);}
+.hstat-label{font-size:0.75rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:0.2rem;}
+
+/* SCROLL INDICATOR */
+.scroll-hint{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  color:var(--muted);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;
+  animation:fadeUp 0.8s 1s ease both;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(var(--cyan),transparent);animation:scrollLine 2s ease-in-out infinite;}
+@keyframes scrollLine{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ═══════════════════════════════════════════
+   SECTIONS
+═══════════════════════════════════════════ */
+.container{max-width:1200px;margin:0 auto;padding:0 2.5rem;}
+.section{padding:5rem 0;}
+
+.sec-title{
+  font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;
+  margin-bottom:2.5rem;display:flex;align-items:center;gap:1rem;
+  letter-spacing:1px;text-transform:uppercase;
+}
+.sec-title .ico{color:var(--cyan);font-style:normal;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.2),transparent);}
+
+/* ═══════════════════════════════════════════
+   FEATURE CARDS (grid animated)
+═══════════════════════════════════════════ */
+.feat-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  border:1px solid rgba(0,245,255,0.08);
+  position:relative;overflow:hidden;
+}
+.feat-grid::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 0%,rgba(0,245,255,0.04) 0%,transparent 70%);
+}
+.feat-card{
+  padding:2rem 1.5rem;
+  border-right:1px dashed rgba(0,245,255,0.08);
+  border-bottom:1px dashed rgba(0,245,255,0.08);
+  position:relative;overflow:hidden;transition:all 0.4s;
+}
+/* animated grid pattern inside each card */
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,245,255,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,255,0.03) 1px,transparent 1px);
+  background-size:20px 20px;
+  mask-image:radial-gradient(ellipse at top center,black 0%,transparent 60%);
+  pointer-events:none;opacity:0;transition:opacity 0.4s;
+}
+.feat-card::after{
+  content:'';position:absolute;top:-50%;left:50%;width:150%;height:150%;
+  background:radial-gradient(circle,rgba(0,245,255,0.07) 0%,transparent 60%);
+  transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity 0.4s;
+}
+.feat-card:hover::before,.feat-card:hover::after{opacity:1;}
+.feat-card:hover{background:rgba(0,245,255,0.03);}
+.feat-icon{font-size:2rem;margin-bottom:1.3rem;display:block;
+  filter:drop-shadow(0 0 8px rgba(0,245,255,0.4));
+  transition:transform 0.3s,filter 0.3s;}
+.feat-card:hover .feat-icon{transform:scale(1.1);filter:drop-shadow(0 0 14px rgba(0,245,255,0.7));}
+.feat-card h3{
+  font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;
+  color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:0.6rem;
+}
+.feat-card p{font-size:0.82rem;color:var(--muted2);line-height:1.7;}
+
+/* ═══════════════════════════════════════════
+   GAME CARDS
+═══════════════════════════════════════════ */
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.3rem;}
+
+.game-card{
+  background:var(--card);border:1px solid rgba(0,245,255,0.07);
+  border-radius:16px;overflow:hidden;
+  transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
+  cursor:pointer;position:relative;
+}
+.game-card::before{
+  content:'';position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(135deg,rgba(0,245,255,0.06),rgba(255,0,170,0.04));
+  opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:1;
+}
+.game-card:hover::before{opacity:1;}
+.game-card:hover{
+  transform:translateY(-8px) scale(1.01);
+  border-color:rgba(0,245,255,0.3);
+  box-shadow:0 25px 70px rgba(0,245,255,0.12),0 0 0 1px rgba(0,245,255,0.08);
+}
+
+.game-thumb{
+  width:100%;height:175px;
+  background:linear-gradient(135deg,#0a0818,var(--card2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:4.5rem;position:relative;overflow:hidden;
+}
+.game-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;}
+.game-card:hover .game-thumb img{transform:scale(1.06);}
+.game-thumb::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:70px;
+  background:linear-gradient(transparent,var(--card));pointer-events:none;
+}
+.game-thumb-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity 0.3s;z-index:2;
+}
+.game-card:hover .game-thumb-overlay{opacity:1;}
+.thumb-eye{
+  background:rgba(0,245,255,0.15);border:1px solid rgba(0,245,255,0.4);
+  color:var(--cyan);padding:0.4rem 0.8rem;border-radius:20px;
+  font-size:0.75rem;font-weight:700;letter-spacing:1px;
+}
+
+.g-badge{
+  position:absolute;top:10px;left:10px;z-index:3;
+  font-size:0.62rem;font-weight:800;padding:3px 10px;border-radius:20px;
+  letter-spacing:1px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--magenta),#cc0088);
+  color:#fff;box-shadow:0 0 14px rgba(255,0,170,0.5);
+}
+.g-badge.sale{background:linear-gradient(135deg,var(--gold),#cc9900);color:#000;}
+
+.game-body{padding:1rem 1.1rem 1rem;position:relative;z-index:2;}
+.game-name{
+  font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;
+  margin-bottom:0.4rem;letter-spacing:0.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.game-genre-tag{
+  display:inline-block;font-size:0.65rem;font-weight:700;
+  background:rgba(0,245,255,0.1);color:var(--cyan);
+  padding:2px 9px;border-radius:20px;margin-bottom:0.7rem;
+  letter-spacing:1.5px;text-transform:uppercase;
+  border:1px solid rgba(0,245,255,0.15);
+}
+.game-price-row{display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.8rem;}
+.game-price{
+  font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;color:var(--gold);
+  text-shadow:0 0 10px rgba(255,215,0,0.3);
+}
+.game-currency{font-size:0.7rem;color:var(--muted);font-family:'Exo 2',sans-serif;font-weight:400;}
+
+.add-cart-btn{
+  width:100%;
+  background:linear-gradient(135deg,rgba(0,245,255,0.1),rgba(0,245,255,0.05));
+  border:1px solid rgba(0,245,255,0.18);color:var(--cyan);
+  padding:0.55rem;border-radius:9px;cursor:pointer;
+  font-family:'Exo 2',sans-serif;font-size:0.78rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;transition:all 0.3s;
+}
+.add-cart-btn:hover{
+  background:rgba(0,245,255,0.2);
+  box-shadow:0 0 20px rgba(0,245,255,0.2);
+  border-color:rgba(0,245,255,0.4);
+}
+
+/* ═══════════════════════════════════════════
+   SHOP PAGE
+═══════════════════════════════════════════ */
+.shop-page{padding-top:85px;}
+
+.search-wrap{position:relative;margin-bottom:1.2rem;}
+.search-wrap input{
+  width:100%;background:rgba(0,245,255,0.04);
+  border:1px solid rgba(0,245,255,0.14);color:var(--text);
+  padding:0.75rem 1rem 0.75rem 3rem;border-radius:12px;
+  font-size:0.9rem;outline:none;font-family:'Exo 2',sans-serif;
+  transition:all 0.3s;
+}
+.search-wrap input::placeholder{color:var(--muted);}
+.search-wrap input:focus{border-color:var(--cyan);box-shadow:0 0 25px rgba(0,245,255,0.08);}
+.search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem;}
+
+.filters{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.chip{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  color:var(--muted);padding:0.4rem 1rem;border-radius:20px;cursor:pointer;
+  font-size:0.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all 0.25s;font-family:'Exo 2',sans-serif;
+}
+.chip:hover,.chip.on{
+  background:rgba(0,245,255,0.1);color:var(--cyan);
+  border-color:rgba(0,245,255,0.3);
+}
+
+.empty{text-align:center;padding:5rem 1rem;color:var(--muted);}
+.empty .big{font-size:5rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(0,245,255,0.2));}
+.empty p{font-size:1rem;line-height:1.7;}
+
+/* ═══════════════════════════════════════════
+   CONTACT PAGE
+═══════════════════════════════════════════ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
+
+.glass-card{
+  background:rgba(13,11,26,0.8);
+  border:1px solid rgba(0,245,255,0.1);border-radius:18px;
+  padding:1.8rem;position:relative;overflow:hidden;
+  backdrop-filter:blur(10px);
+  transition:border-color 0.3s;
+}
+.glass-card:hover{border-color:rgba(0,245,255,0.2);}
+.glass-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,245,255,0.4),transparent);
+}
+.card-title{
+  font-family:'Orbitron',monospace;font-size:0.88rem;font-weight:700;
+  color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:1.3rem;padding-bottom:0.8rem;
+  border-bottom:1px solid rgba(0,245,255,0.08);
+}
+.contact-item{
+  display:flex;align-items:center;gap:0.9rem;
+  padding:0.8rem 0;border-bottom:1px solid rgba(255,255,255,0.03);
+  font-size:0.88rem;
+}
+.contact-item:last-child{border-bottom:none;}
+.c-icon{
+  width:38px;height:38px;border-radius:9px;flex-shrink:0;
+  background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.14);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+}
+.c-label{font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:0.1rem;}
+.c-val{font-weight:600;color:var(--text);}
+
+.form-group{margin-bottom:1.1rem;}
+.form-group label{
+  display:block;font-size:0.72rem;font-weight:700;
+  color:var(--muted);margin-bottom:0.45rem;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;background:rgba(0,0,0,0.5);
+  border:1px solid rgba(0,245,255,0.12);color:var(--text);
+  padding:0.7rem 1rem;border-radius:9px;
+  font-size:0.88rem;outline:none;font-family:'Exo 2',sans-serif;
+  transition:all 0.3s;
+}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--muted);}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{
+  border-color:var(--cyan);box-shadow:0 0 20px rgba(0,245,255,0.08);
+}
+.form-group textarea{resize:vertical;min-height:110px;}
+.form-group select option{background:#0d0b1a;}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn-primary{
+  width:100%;
+  background:linear-gradient(135deg,var(--cyan),#0099cc);
+  color:#000;border:none;padding:0.85rem;border-radius:11px;
+  font-family:'Exo 2',sans-serif;font-size:0.88rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.3s;
+  box-shadow:0 0 25px rgba(0,245,255,0.25);
+  position:relative;overflow:hidden;
+}
+.btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.5s;}
+.btn-primary:hover::after{left:100%;}
+.btn-primary:hover{box-shadow:0 0 45px rgba(0,245,255,0.45);transform:translateY(-2px);}
+
+.btn-wa{
+  width:100%;
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  color:#fff;border:none;padding:0.85rem;border-radius:11px;
+  font-family:'Exo 2',sans-serif;font-size:0.88rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.3s;margin-top:0.7rem;
+  display:flex;align-items:center;justify-content:center;gap:0.6rem;
+  box-shadow:0 0 20px rgba(37,211,102,0.2);
+}
+.btn-wa:hover{box-shadow:0 0 40px rgba(37,211,102,0.4);transform:translateY(-2px);}
+
+.btn-danger{
+  background:rgba(255,48,96,0.12);border:1px solid rgba(255,48,96,0.25);
+  color:#ff4060;padding:0.45rem 0.9rem;border-radius:8px;cursor:pointer;
+  font-family:'Exo 2',sans-serif;font-size:0.78rem;font-weight:700;
+  letter-spacing:1px;transition:all 0.2s;
+}
+.btn-danger:hover{background:rgba(255,48,96,0.25);border-color:rgba(255,48,96,0.5);}
+
+.btn-sm-outline{
+  background:transparent;border:1px solid rgba(255,255,255,0.1);
+  color:var(--muted2);padding:0.7rem 1.5rem;border-radius:10px;
+  font-family:'Exo 2',sans-serif;font-size:0.82rem;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.3s;
+}
+.btn-sm-outline:hover{border-color:var(--magenta);color:var(--magenta);}
+
+/* ═══════════════════════════════════════════
+   CART PAGE
+═══════════════════════════════════════════ */
+.cart-page{padding-top:85px;}
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start;}
+
+.cart-item{
+  display:flex;gap:1rem;align-items:center;
+  padding:1.1rem;background:var(--card);
+  border:1px solid rgba(0,245,255,0.07);border-radius:13px;
+  margin-bottom:0.8rem;transition:all 0.3s;
+}
+.cart-item:hover{border-color:rgba(0,245,255,0.18);}
+.ci-thumb{
+  width:60px;height:60px;border-radius:10px;flex-shrink:0;
+  background:var(--card2);display:flex;align-items:center;
+  justify-content:center;font-size:2rem;overflow:hidden;
+}
+.ci-thumb img{width:100%;height:100%;object-fit:cover;}
+.ci-info{flex:1;min-width:0;}
+.ci-name{font-family:'Orbitron',monospace;font-weight:700;font-size:0.78rem;letter-spacing:0.5px;margin-bottom:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ci-genre{font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem;letter-spacing:1px;text-transform:uppercase;}
+.ci-price{font-family:'Orbitron',monospace;font-size:0.88rem;font-weight:900;color:var(--gold);}
+.qty-ctrl{display:flex;align-items:center;gap:0.5rem;}
+.qty-btn{
+  background:rgba(0,245,255,0.07);border:1px solid rgba(0,245,255,0.15);
+  color:var(--cyan);width:30px;height:30px;border-radius:7px;cursor:pointer;
+  font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+}
+.qty-btn:hover{background:rgba(0,245,255,0.2);}
+.qty-num{font-weight:800;font-size:0.9rem;min-width:22px;text-align:center;}
+
+.cart-box{
+  background:var(--card);border:1px solid rgba(0,245,255,0.1);
+  border-radius:16px;padding:1.5rem;position:sticky;top:85px;
+}
+.cart-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;border-radius:16px 16px 0 0;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+}
+.cart-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.cart-row:last-of-type{border-bottom:none;}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(0,245,255,0.1);}
+.cart-total-num{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;color:var(--gold);}
+
+/* ═══════════════════════════════════════════
+   ADMIN PAGE
+═══════════════════════════════════════════ */
+.admin-page{padding-top:85px;}
+.admin-header{
+  background:var(--card);border:1px solid rgba(255,0,170,0.2);
+  border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:2rem;
+  display:flex;align-items:center;gap:1rem;
+  border-left:3px solid var(--magenta);
+}
+.admin-panel{
+  background:var(--card);border:1px solid rgba(0,245,255,0.09);
+  border-radius:16px;padding:1.8rem;margin-bottom:1.5rem;
+  position:relative;overflow:hidden;
+}
+.admin-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));
+}
+.admin-panel-title{
+  font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;
+  color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:1.4rem;display:flex;align-items:center;gap:0.6rem;
+}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+.upload-zone{
+  border:2px dashed rgba(0,245,255,0.18);border-radius:11px;
+  padding:1.8rem;text-align:center;cursor:pointer;transition:all 0.3s;
+  position:relative;background:rgba(0,245,255,0.02);
+}
+.upload-zone:hover{border-color:var(--cyan);background:rgba(0,245,255,0.05);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-text{color:var(--muted);font-size:0.85rem;line-height:1.7;}
+#a-img-preview{
+  width:100%;max-height:130px;object-fit:cover;
+  border-radius:9px;margin-top:0.8rem;display:none;
+}
+
+.admin-game-row{
+  display:flex;align-items:center;gap:0.9rem;
+  padding:0.9rem;background:rgba(0,245,255,0.02);
+  border:1px solid rgba(0,245,255,0.06);border-radius:11px;
+  margin-bottom:0.6rem;transition:all 0.25s;
+}
+.admin-game-row:hover{border-color:rgba(0,245,255,0.15);}
+.agr-thumb{
+  width:44px;height:44px;border-radius:8px;flex-shrink:0;
+  background:var(--card2);display:flex;align-items:center;
+  justify-content:center;font-size:1.5rem;overflow:hidden;
+}
+.agr-thumb img{width:100%;height:100%;object-fit:cover;}
+.agr-name{flex:1;font-weight:700;font-size:0.88rem;}
+.agr-genre{font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.agr-price{font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:900;color:var(--gold);white-space:nowrap;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.stat-card{
+  background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.1);
+  border-radius:12px;padding:1.2rem;text-align:center;
+  transition:all 0.3s;
+}
+.stat-card:hover{background:rgba(0,245,255,0.07);border-color:rgba(0,245,255,0.2);}
+.stat-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--cyan);}
+.stat-label{font-size:0.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;}
+
+/* ═══════════════════════════════════════════
+   OVERLAYS & MODALS
+═══════════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  z-index:800;align-items:center;justify-content:center;padding:1rem;
+  backdrop-filter:blur(10px);
+}
+.overlay.open{display:flex;}
+
+.modal{
+  background:rgba(18,15,34,0.98);
+  border:1px solid rgba(0,245,255,0.18);border-radius:20px;
+  padding:2rem;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  animation:modalIn 0.4s cubic-bezier(0.16,1,0.3,1);
+  box-shadow:0 40px 100px rgba(0,245,255,0.08),0 0 0 1px rgba(0,245,255,0.04);
+  position:relative;
+}
+.modal::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;border-radius:20px 20px 0 0;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;}
+.modal-head h2{font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;color:var(--cyan);letter-spacing:1px;}
+.close-btn{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;
+  font-size:1rem;transition:all 0.2s;
+}
+.close-btn:hover{background:rgba(255,0,170,0.15);border-color:var(--magenta);color:var(--magenta);}
+
+/* LOCK SCREEN */
+.lock-wrap{
+  max-width:400px;width:100%;
+  background:rgba(18,15,34,0.98);
+  border:1px solid rgba(255,0,170,0.25);border-radius:22px;
+  padding:3rem 2rem;text-align:center;
+  animation:modalIn 0.4s ease;
+  box-shadow:0 0 80px rgba(255,0,170,0.06);
+  position:relative;overflow:hidden;
+}
+.lock-wrap::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--magenta),var(--cyan));
+}
+.lock-icon{font-size:4rem;margin-bottom:1rem;display:block;filter:drop-shadow(0 0 20px rgba(255,0,170,0.4));}
+.lock-wrap h2{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;letter-spacing:1px;}
+.lock-wrap p{color:var(--muted2);font-size:0.85rem;margin-bottom:2rem;line-height:1.7;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  background:rgba(13,11,26,0.96);
+  border:1px solid var(--cyan);color:var(--text);
+  padding:1rem 1.5rem;border-radius:14px;
+  font-size:0.85rem;font-weight:700;letter-spacing:0.5px;
+  display:none;
+  backdrop-filter:blur(20px);
+  box-shadow:0 0 30px rgba(0,245,255,0.15),0 20px 40px rgba(0,0,0,0.4);
+  max-width:350px;
+  animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.toast.show{display:flex;align-items:center;gap:0.6rem;}
+.toast.err{border-color:var(--magenta);box-shadow:0 0 30px rgba(255,0,170,0.15),0 20px 40px rgba(0,0,0,0.4);}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ═══════════════════════════════════════════
+   GAME MODAL
+═══════════════════════════════════════════ */
+.gm-img-wrap{
+  width:100%;height:220px;background:var(--deep);border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:6rem;margin-bottom:1.2rem;overflow:hidden;
+}
+.gm-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.gm-tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.gm-tag{padding:3px 11px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.tag-genre{background:rgba(0,245,255,0.1);color:var(--cyan);border:1px solid rgba(0,245,255,0.2);}
+.tag-price{background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.2);}
+.gm-desc{color:var(--muted2);font-size:0.9rem;line-height:1.75;margin-bottom:1.5rem;}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer{
+  background:rgba(7,5,15,0.95);border-top:1px solid rgba(0,245,255,0.07);
+  padding:2.5rem;text-align:center;position:relative;z-index:2;
+  margin-top:3rem;
+}
+footer::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,245,255,0.3),rgba(255,0,170,0.3),transparent);
+}
+.footer-logo{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;margin-bottom:0.5rem;
+  background:linear-gradient(135deg,var(--cyan),var(--magenta));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+footer p{color:var(--muted);font-size:0.8rem;line-height:1.8;}
+footer strong{color:var(--cyan);}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.reveal{opacity:0;transform:translateY(24px);transition:all 0.65s cubic-bezier(0.16,1,0.3,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-d1{transition-delay:0.1s;}
+.reveal-d2{transition-delay:0.2s;}
+.reveal-d3{transition-delay:0.3s;}
+.reveal-d4{transition-delay:0.4s;}
+
+.tag{display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+/* ADMIN TABS */
+.admin-tab{
+  background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  color:var(--muted2);padding:0.55rem 1.3rem;border-radius:10px;
+  cursor:pointer;font-family:'Exo 2',sans-serif;font-size:0.8rem;
+  font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all 0.25s;
+}
+.admin-tab:hover{color:var(--text);border-color:var(--border2);}
+.admin-tab.active{background:linear-gradient(135deg,rgba(0,245,255,0.12),rgba(255,0,170,0.08));border-color:rgba(0,245,255,0.35);color:var(--cyan);}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:900px){
+  .cart-layout{grid-template-columns:1fr;}
+  .contact-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:680px){
+  nav{padding:0 1.2rem;}
+  .nav-links{display:none;}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:66px;left:0;right:0;background:rgba(3,2,10,0.98);border-bottom:1px solid var(--border);padding:1rem;gap:0.2rem;}
+  .hamburger{display:block;}
+  .hero-stats{gap:1.5rem;}
+  .form-grid-2{grid-template-columns:1fr;}
+  .container{padding:0 1.2rem;}
+  .hero{padding:80px 1.2rem 3rem;}
+  .section{padding:3rem 0;}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- PARTICLES -->
+<canvas id="cvs"></canvas>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     NAVIGATION
+═══════════════════════════════════════ -->
+<nav>
+  <div class="logo" onclick="nav('home')">🎮 GAME<span>HUB</span></div>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-btn active" data-page="home" onclick="nav('home')">Accueil</button>
+    <button class="nav-btn" data-page="shop" onclick="nav('shop')">Boutique</button>
+    <button class="nav-btn" data-page="contact" onclick="nav('contact')">Contact</button>
+    <button class="nav-btn" onclick="openAdminGate()">Admin</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.8rem;">
+    <button class="cart-nav" onclick="nav('cart')">
+      ⬡ Panier
+      <span class="cart-badge" id="cart-badge">0</span>
+    </button>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     PAGE : ACCUEIL
+═══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid"></div>
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Boutique PC Premium — Ouagadougou
+    </div>
+    <h1>
+      <span class="l1">L'UNIVERS DU JEU</span>
+      <span class="l2">PC À OUAGADOUGOU</span>
+    </h1>
+    <p class="hero-sub">
+      Les meilleurs titres PC livrés rapidement. <strong>Steam, Epic, Origin</strong> et plus encore. Support WhatsApp <strong>7j/7</strong>.
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-glow" onclick="nav('shop')">🎮 Explorer la boutique</button>
+      <button class="btn-outline-hero" onclick="openWA('Bonjour GameHub ! Je veux plus d\'informations.')">💬 WhatsApp direct</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-num" id="hs-games">0</div>
+        <div class="hstat-label">Jeux dispo</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--magenta);">7/7</div>
+        <div class="hstat-label">Support WA</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--gold);">100%</div>
+        <div class="hstat-label">Authentique</div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Défiler</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="container">
+      <div class="sec-title reveal"><i class="ico">◈</i> Pourquoi GameHub</div>
+      <div class="feat-grid reveal">
+        <div class="feat-card">
+          <span class="feat-icon">⚡</span>
+          <h3>Ultra Rapide</h3>
+          <p>Livraison de vos clés de jeux PC par messagerie en quelques heures seulement.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">💻</span>
+          <h3>PC Exclusif</h3>
+          <p>Steam, Epic Games, Origin et tous les grands launchers PC couverts.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🔐</span>
+          <h3>Sécurisé</h3>
+          <p>Jeux 100% authentiques, licences officielles, paiements sécurisés garantis.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🎯</span>
+          <h3>Personnalisé</h3>
+          <p>Recommandations sur mesure selon vos goûts et votre configuration PC.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🛠️</span>
+          <h3>Support 7/7</h3>
+          <p>Assistance technique disponible chaque jour via WhatsApp — réponse rapide.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🌐</span>
+          <h3>Toujours Dispo</h3>
+          <p>Boutique accessible 24h/24 depuis n'importe quel appareil — PC, mobile, tablette.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURED GAMES -->
+  <div class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="sec-title reveal"><i class="ico">◈</i> Jeux en vedette</div>
+      <div class="games-grid" id="home-grid"></div>
+      <div style="text-align:center;margin-top:2.5rem;" class="reveal">
+        <button class="btn-outline-hero" onclick="nav('shop')">Voir tous les jeux →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA BANNER -->
+  <div class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="reveal" style="background:linear-gradient(135deg,rgba(0,245,255,0.06),rgba(255,0,170,0.06));border:1px solid rgba(0,245,255,0.15);border-radius:20px;padding:3rem 2rem;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,245,255,0.04),transparent);pointer-events:none;"></div>
+        <div style="font-size:2.5rem;margin-bottom:0.8rem;">💬</div>
+        <h2 style="font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;margin-bottom:0.8rem;">Une question ? On est là.</h2>
+        <p style="color:var(--muted2);margin-bottom:1.5rem;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.7;">Notre équipe répond en quelques minutes sur WhatsApp. Conseils, disponibilité, prix — on vous accompagne.</p>
+        <button class="btn-wa" style="max-width:300px;margin:0 auto;" onclick="openWA('Bonjour GameHub ! Je veux des conseils pour choisir un jeu.')">
+          💬 Contacter GameHub
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">🎮 GAMEHUB</div>
+    <p>
+      <strong>+226 64 84 54 66</strong> · Ouagadougou, Burkina Faso<br>
+      Lun–Sam · 8h–20h · Jeux PC originaux
+    </p>
+    <p style="margin-top:0.8rem;font-size:0.72rem;">© 2025 GameHub — Tous droits réservés</p>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE : BOUTIQUE
+═══════════════════════════════════════ -->
+<div class="page" id="page-shop">
+  <div class="shop-page">
+    <div class="container">
+      <div class="sec-title"><i class="ico">◈</i> Boutique</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Rechercher un jeu par nom, genre..." oninput="filterShop()">
+      </div>
+      <div class="filters" id="filter-chips"></div>
+      <div class="games-grid" id="shop-grid"></div>
+      <div id="shop-empty" class="empty" style="display:none;">
+        <div class="big">🎮</div>
+        <p>Aucun jeu trouvé.<br>Essayez un autre terme ou catégorie.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE : CONTACT
+═══════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <div class="container" style="padding-top:90px;padding-bottom:4rem;">
+    <div class="sec-title"><i class="ico">◈</i> Contact</div>
+    <div class="contact-grid">
+      <!-- LEFT -->
+      <div>
+        <div class="glass-card" style="margin-bottom:1.2rem;">
+          <div class="card-title">📍 Nos Coordonnées</div>
+          <div class="contact-item">
+            <div class="c-icon">📱</div>
+            <div><div class="c-label">WhatsApp</div><div class="c-val">+226 64 84 54 66</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="c-icon">🏪</div>
+            <div><div class="c-label">Boutique</div><div class="c-val">GameHub — Ouagadougou</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="c-icon">⏰</div>
+            <div><div class="c-label">Horaires</div><div class="c-val">Lundi – Samedi · 8h–20h</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="c-icon">📍</div>
+            <div><div class="c-label">Localisation</div><div class="c-val">Ouagadougou, Burkina Faso</div></div>
+          </div>
+          <div class="contact-item">
+            <div class="c-icon">🎮</div>
+            <div><div class="c-label">Spécialité</div><div class="c-val">Jeux PC originaux — Steam, Epic…</div></div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-title">💬 Chat Instantané</div>
+          <p style="color:var(--muted2);font-size:0.85rem;line-height:1.7;margin-bottom:1.2rem;">
+            Une question rapide ? Notre équipe répond en quelques minutes sur WhatsApp — conseils, prix, disponibilité.
+          </p>
+          <button class="btn-wa" onclick="openWA('Bonjour GameHub ! Je veux plus d\'informations.')">
+            💬 Ouvrir WhatsApp maintenant
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="glass-card">
+        <div class="card-title">✉️ Envoyer un Message</div>
+        <div class="form-group">
+          <label>Votre Nom *</label>
+          <input type="text" id="c-name" placeholder="Ex : Jean Dupont">
+        </div>
+        <div class="form-group">
+          <label>Sujet</label>
+          <input type="text" id="c-subject" placeholder="Ex : Question sur la disponibilité d'un jeu">
+        </div>
+        <div class="form-group">
+          <label>Votre Message *</label>
+          <textarea id="c-msg" rows="6" placeholder="Écrivez votre message ici..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="sendContact()">📤 Envoyer via WhatsApp</button>
+        <p style="text-align:center;font-size:0.72rem;color:var(--muted);margin-top:0.6rem;">
+          Votre message sera transmis directement sur WhatsApp
+        </p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="footer-logo">🎮 GAMEHUB</div>
+    <p><strong>+226 64 84 54 66</strong> · Ouagadougou, Burkina Faso</p>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE : PANIER
+═══════════════════════════════════════ -->
+<div class="page" id="page-cart">
+  <div class="cart-page">
+    <div class="container">
+      <div class="sec-title"><i class="ico">◈</i> Mon Panier</div>
+      <div id="cart-empty-state" class="empty" style="display:none;">
+        <div class="big">🛒</div>
+        <p>Votre panier est vide.<br>Ajoutez des jeux depuis la boutique !</p>
+        <button class="btn-glow" style="margin-top:1.5rem;" onclick="nav('shop')">Voir la boutique</button>
+      </div>
+      <div id="cart-content" style="display:none;">
+        <div class="cart-layout">
+          <div id="cart-items-list"></div>
+          <div class="cart-box" id="cart-summary-box">
+            <div style="font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:var(--cyan);margin-bottom:1rem;letter-spacing:1px;">RÉCAPITULATIF</div>
+            <div id="cart-summary-rows"></div>
+            <div class="cart-total-row">
+              <span style="font-weight:700;font-size:1rem;">Total</span>
+              <span class="cart-total-num" id="cart-total-val">0 FCFA</span>
+            </div>
+            <button class="btn-wa" onclick="orderWA()">🛍️ Commander via WhatsApp</button>
+            <button class="btn-sm-outline" style="width:100%;margin-top:0.6rem;" onclick="clearCart()">🗑️ Vider le panier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE : ADMIN
+═══════════════════════════════════════ -->
+<div class="page" id="page-admin">
+  <div class="admin-page">
+    <div class="container">
+
+      <!-- HEADER ADMIN -->
+      <div class="admin-header">
+        <span style="font-size:1.5rem;">🔐</span>
+        <div style="flex:1;">
+          <div style="font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:var(--magenta);letter-spacing:1px;">PANNEAU ADMINISTRATEUR</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">Gestion complète de la boutique GameHub</div>
+        </div>
+        <button class="btn-danger" style="font-size:0.75rem;padding:0.4rem 1rem;" onclick="logoutAdmin()">⬡ Déconnexion</button>
+      </div>
+
+      <!-- STATS RAPIDES -->
+      <div class="stat-grid" style="margin-bottom:1.5rem;">
+        <div class="stat-card">
+          <div class="stat-num" id="s-total">0</div>
+          <div class="stat-label">Jeux publiés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-genres" style="color:var(--magenta);">0</div>
+          <div class="stat-label">Genres</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-avg" style="color:var(--gold);font-size:1.1rem;">0 F</div>
+          <div class="stat-label">Prix moyen</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-promo" style="color:var(--lime);">0</div>
+          <div class="stat-label">En promo</div>
+        </div>
+      </div>
+
+      <!-- ONGLETS ADMIN -->
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <button class="admin-tab active" id="tab-add" onclick="switchTab('add')">➕ Ajouter un jeu</button>
+        <button class="admin-tab" id="tab-manage" onclick="switchTab('manage')">📋 Gérer les jeux</button>
+        <button class="admin-tab" id="tab-preview" onclick="switchTab('preview')">👁 Aperçu boutique</button>
+        <button class="admin-tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Statistiques</button>
+      </div>
+
+      <!-- ONGLET : AJOUTER / ÉDITER -->
+      <div id="admin-tab-add">
+        <div class="admin-panel">
+          <div class="admin-panel-title" id="form-mode-label">➕ Ajouter un nouveau jeu</div>
+
+          <!-- APERÇU LIVE -->
+          <div id="live-preview-wrap" style="display:none;margin-bottom:1.5rem;">
+            <div style="font-size:0.75rem;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.8rem;">Aperçu en temps réel</div>
+            <div style="max-width:260px;">
+              <div class="game-card" style="pointer-events:none;">
+                <div class="game-thumb" id="prev-thumb" style="font-size:4rem;display:flex;align-items:center;justify-content:center;background:var(--deep);">🎮</div>
+                <div class="game-body">
+                  <div class="game-name" id="prev-title" style="color:var(--muted2);">Nom du jeu...</div>
+                  <span class="game-genre-tag" id="prev-genre">Genre</span>
+                  <div class="game-price-row">
+                    <span class="game-price" id="prev-price">0</span>
+                    <span class="game-currency">FCFA</span>
+                  </div>
+                  <div id="prev-promo-badge" style="display:none;margin-top:0.4rem;">
+                    <span style="background:rgba(57,255,20,0.15);color:var(--lime);border:1px solid rgba(57,255,20,0.3);padding:2px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;">🏷️ PROMO <span id="prev-promo-val"></span>%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Nom du jeu *</label>
+              <input type="text" id="a-title" placeholder="Ex : Cyberpunk 2077" oninput="livePreview()">
+            </div>
+            <div class="form-group">
+              <label>Genre *</label>
+              <select id="a-genre" onchange="livePreview()">
+                <option value="Action">Action</option>
+                <option value="RPG">RPG</option>
+                <option value="FPS">FPS</option>
+                <option value="Sport">Sport</option>
+                <option value="Stratégie">Stratégie</option>
+                <option value="Aventure">Aventure</option>
+                <option value="Simulation">Simulation</option>
+                <option value="Horreur">Horreur</option>
+                <option value="Course">Course</option>
+                <option value="Combat">Combat</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Prix (FCFA) *</label>
+              <input type="number" id="a-price" placeholder="Ex : 5000" min="0" oninput="livePreview()">
+            </div>
+            <div class="form-group">
+              <label>Émoji représentatif</label>
+              <input type="text" id="a-emoji" placeholder="🎮" maxlength="2" value="🎮" oninput="livePreview()">
+            </div>
+            <div class="form-group">
+              <label>🏷️ Promotion (%)</label>
+              <input type="number" id="a-promo" placeholder="0 = pas de promo" min="0" max="90" oninput="livePreview()" style="border-color:rgba(57,255,20,0.3);">
+            </div>
+            <div class="form-group">
+              <label>🔗 URL d'image (optionnel)</label>
+              <input type="text" id="a-img-url" placeholder="https://exemple.com/image.jpg" oninput="previewImgUrl(this.value)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="a-desc" rows="3" placeholder="Courte description du jeu..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>📁 Ou importer une image depuis votre appareil</label>
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('a-img-file').click()">
+              <input type="file" id="a-img-file" accept="image/*" onchange="previewImg(this)">
+              <div id="upload-placeholder" class="upload-text">
+                📁 Cliquez pour importer votre image<br>
+                <span style="font-size:0.75rem;color:var(--muted);">PNG, JPG, WEBP</span>
+              </div>
+              <img id="a-img-preview" alt="Aperçu">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <button class="btn-primary" onclick="publishGame()" id="publish-btn">⚡ Publier le jeu</button>
+            <button class="btn-sm-outline" style="flex-shrink:0;" onclick="resetForm()">↺ Réinitialiser</button>
+            <button id="cancel-edit-btn" class="btn-danger" style="display:none;flex-shrink:0;" onclick="cancelEdit()">✕ Annuler l'édition</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONGLET : GÉRER -->
+      <div id="admin-tab-manage" style="display:none;">
+        <div class="admin-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+            <div class="admin-panel-title" style="margin-bottom:0;">📋 Jeux publiés</div>
+            <input type="text" id="admin-search" placeholder="🔍 Rechercher..." oninput="renderAdminList()" style="padding:0.5rem 1rem;border-radius:10px;background:var(--deep);border:1px solid var(--border2);color:var(--text);font-family:'Exo 2',sans-serif;font-size:0.85rem;width:220px;">
+          </div>
+          <div id="admin-game-list"></div>
+          <div id="admin-no-games" class="empty" style="display:none;padding:2rem;">
+            <div class="big" style="font-size:3rem;">🎮</div>
+            <p>Aucun jeu publié pour le moment.<br>Ajoutez votre premier jeu dans l'onglet précédent.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONGLET : APERÇU -->
+      <div id="admin-tab-preview" style="display:none;">
+        <div class="admin-panel">
+          <div class="admin-panel-title">👁 Aperçu de la boutique</div>
+          <p style="color:var(--muted2);font-size:0.85rem;margin-bottom:1.2rem;">Voici comment vos jeux apparaissent aux clients :</p>
+          <div class="games-grid" id="admin-preview-grid"></div>
+          <div id="admin-preview-empty" style="display:none;padding:2rem;text-align:center;color:var(--muted);">Aucun jeu publié.</div>
+        </div>
+      </div>
+
+      <!-- ONGLET : ANALYTICS -->
+      <div id="admin-tab-analytics" style="display:none;">
+
+        <!-- KPIs -->
+        <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:1.5rem;">
+          <div class="stat-card">
+            <div class="stat-num" id="an-visits" style="color:var(--cyan);">0</div>
+            <div class="stat-label">Visites totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="an-today" style="color:var(--lime);">0</div>
+            <div class="stat-label">Aujourd'hui</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="an-carts" style="color:var(--gold);">0</div>
+            <div class="stat-label">Ajouts panier</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="an-orders" style="color:var(--magenta);">0</div>
+            <div class="stat-label">Commandes WA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="an-views" style="color:var(--text);">0</div>
+            <div class="stat-label">Fiches produit vues</div>
+          </div>
+        </div>
+
+        <!-- PAGES LES PLUS VISITÉES -->
+        <div class="admin-panel" style="margin-bottom:1.2rem;">
+          <div class="admin-panel-title">📄 Pages les plus visitées</div>
+          <div id="an-pages-list"></div>
+        </div>
+
+        <!-- JEUX LES PLUS VUS -->
+        <div class="admin-panel" style="margin-bottom:1.2rem;">
+          <div class="admin-panel-title">🎮 Jeux les plus consultés</div>
+          <div id="an-games-list"></div>
+          <div id="an-games-empty" style="color:var(--muted);font-size:0.85rem;padding:1rem 0;">Aucune consultation enregistrée pour l'instant.</div>
+        </div>
+
+        <!-- HISTORIQUE DES ÉVÉNEMENTS -->
+        <div class="admin-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+            <div class="admin-panel-title" style="margin-bottom:0;">⚡ Journal des événements récents</div>
+            <button class="btn-danger" style="font-size:0.72rem;padding:0.3rem 0.9rem;" onclick="clearAnalytics()">🗑️ Effacer les stats</button>
+          </div>
+          <div id="an-events-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:0.5rem;"></div>
+          <div id="an-events-empty" style="color:var(--muted);font-size:0.85rem;padding:1rem 0;">Aucun événement enregistré.</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     OVERLAYS
+═══════════════════════════════════════ -->
+
+<!-- ADMIN GATE -->
+<div class="overlay" id="overlay-admin">
+  <div class="lock-wrap">
+    <span class="lock-icon">🔐</span>
+    <h2>ACCÈS RESTREINT</h2>
+    <p>Panneau réservé aux administrateurs de GameHub. Entrez votre code d'accès pour continuer.</p>
+    <div class="form-group">
+      <input type="password" id="admin-pw" placeholder="Code administrateur..."
+        style="text-align:center;letter-spacing:6px;font-size:1.1rem;"
+        onkeydown="if(event.key==='Enter')checkAdmin()">
+    </div>
+    <button class="btn-primary" onclick="checkAdmin()" style="margin-bottom:0.8rem;">🔓 Accéder au panneau</button>
+    <div id="pw-error" style="color:var(--magenta);font-size:0.82rem;margin-top:0.5rem;display:none;font-weight:700;">❌ Code incorrect. Réessayez.</div>
+    <button onclick="closeOverlay('overlay-admin')" style="background:none;border:none;color:var(--muted);font-size:0.82rem;margin-top:1rem;cursor:pointer;display:block;width:100%;letter-spacing:1px;text-transform:uppercase;">Annuler</button>
+  </div>
+</div>
+
+<!-- GAME DETAIL MODAL -->
+<div class="overlay" id="overlay-game">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="gm-title">Détail du jeu</h2>
+      <button class="close-btn" onclick="closeOverlay('overlay-game')">✕</button>
+    </div>
+    <div class="gm-img-wrap" id="gm-img"></div>
+    <div class="gm-tags">
+      <span class="gm-tag tag-genre" id="gm-genre"></span>
+      <span class="gm-tag tag-price" id="gm-price"></span>
+    </div>
+    <p class="gm-desc" id="gm-desc"></p>
+    <button class="btn-primary" id="gm-add-btn">🛒 Ajouter au panier</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── CURSOR ─────────────────────────────── */
+const curEl = document.getElementById('cur');
+const ringEl = document.getElementById('cur-ring');
+document.addEventListener('mousemove', e => {
+  curEl.style.left  = e.clientX + 'px';
+  curEl.style.top   = e.clientY + 'px';
+  ringEl.style.left = e.clientX + 'px';
+  ringEl.style.top  = e.clientY + 'px';
+});
+document.addEventListener('mousedown', () => { curEl.style.transform = 'translate(-50%,-50%) scale(2.2)'; });
+document.addEventListener('mouseup',   () => { curEl.style.transform = 'translate(-50%,-50%) scale(1)'; });
+
+/* ── PARTICLES ──────────────────────────── */
+(function(){
+  const canvas = document.getElementById('cvs');
+  const ctx    = canvas.getContext('2d');
+  let pts = [];
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for(let i = 0; i < 80; i++) pts.push({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight,
+    vx: (Math.random() - 0.5) * 0.35,
+    vy: (Math.random() - 0.5) * 0.35,
+    r: Math.random() * 1.6 + 0.4,
+    o: Math.random() * 0.45 + 0.08
+  });
+  function draw(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+      if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,245,255,${p.o})`;
+      ctx.fill();
+    });
+    for(let i = 0; i < pts.length; i++){
+      for(let j = i+1; j < pts.length; j++){
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if(d < 130){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.strokeStyle = `rgba(0,245,255,${0.06*(1-d/130)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── SCROLL REVEAL ──────────────────────── */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+function observeReveal(){ document.querySelectorAll('.reveal').forEach(el => revObs.observe(el)); }
+observeReveal();
+
+/* ── STATE ──────────────────────────────── */
+const ADMIN_CODE = 'Hyacinthe';
+const WA_NUM     = '22664845466';
+const STORE_KEY  = 'gamehub_premium_v1';
+
+let games        = [];
+let cart         = [];
+let activeFilter = 'Tous';
+let imgData      = null;
+
+/* ── STORAGE (partagé multi-appareils) ─── */
+async function save(){
+  try { await window.storage.set(STORE_KEY, JSON.stringify(games), true); }
+  catch(e){ /* stockage non dispo (hors Claude.ai), fallback localStorage */
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(games)); } catch(e2){}
+  }
+}
+async function load(){
+  try {
+    const r = await window.storage.get(STORE_KEY, true);
+    if(r && r.value) games = JSON.parse(r.value);
+  } catch(e){
+    try { const d = localStorage.getItem(STORE_KEY); if(d) games = JSON.parse(d); }
+    catch(e2){}
+  }
+  renderAll();
+}
+
+/* ── RENDER ALL ─────────────────────────── */
+function renderAll(){
+  renderHomeGames();
+  renderShopGames();
+  renderAdminList();
+  updateStats();
+  updateFilters();
+  updateHeroStats();
+}
+
+/* ── CARD HTML ──────────────────────────── */
+function cardHTML(g, badge){
+  const thumbInner = g.image
+    ? `<img src="${g.image}" alt="${esc(g.title)}">`
+    : `<span>${g.emoji || '🎮'}</span>`;
+  const badgeHTML = badge ? `<div class="g-badge">Nouveau</div>` : '';
+  const promo     = g.promo > 0 ? g.promo : 0;
+  const finalPrice= promo > 0 ? Math.round(g.price*(1-promo/100)) : g.price;
+  const priceHTML = promo > 0
+    ? `<span class="game-price">${fmt(finalPrice)}</span><span class="game-currency">FCFA</span>&nbsp;<span style="text-decoration:line-through;color:var(--muted);font-size:0.72rem;">${fmt(g.price)}</span>`
+    : `<span class="game-price">${fmt(finalPrice)}</span><span class="game-currency">FCFA</span>`;
+  const promoRibbon = promo > 0
+    ? `<div style="position:absolute;top:10px;right:10px;background:var(--lime);color:#000;padding:2px 9px;border-radius:20px;font-size:0.68rem;font-weight:900;z-index:2;">-${promo}%</div>`
+    : '';
+  return `
+  <div class="game-card" onclick="openGameModal('${g.id}')">
+    ${badgeHTML}
+    ${promoRibbon}
+    <div class="game-thumb">
+      ${thumbInner}
+      <div class="game-thumb-overlay"><span class="thumb-eye">👁 Voir détails</span></div>
+    </div>
+    <div class="game-body">
+      <div class="game-name">${esc(g.title)}</div>
+      <span class="game-genre-tag">${esc(g.genre)}</span>
+      <div class="game-price-row">
+        ${priceHTML}
+      </div>
+      <button class="add-cart-btn" onclick="event.stopPropagation();addToCart('${g.id}')">+ Ajouter au panier</button>
+    </div>
+  </div>`;
+}
+
+function renderHomeGames(){
+  const el = document.getElementById('home-grid');
+  const list = games.slice(0, 6);
+  el.innerHTML = list.length
+    ? list.map((g, i) => cardHTML(g, i === 0)).join('')
+    : `<p style="color:var(--muted);grid-column:1/-1;padding:3rem;text-align:center;font-size:0.9rem;">
+        Aucun jeu disponible — connectez-vous à l'admin pour publier des jeux.
+       </p>`;
+}
+
+function renderShopGames(){
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  const list = games.filter(g =>
+    (activeFilter === 'Tous' || g.genre === activeFilter) &&
+    (!q || g.title.toLowerCase().includes(q) || (g.desc||'').toLowerCase().includes(q))
+  );
+  const el    = document.getElementById('shop-grid');
+  const empty = document.getElementById('shop-empty');
+  empty.style.display = list.length ? 'none' : 'block';
+  el.innerHTML = list.map(g => cardHTML(g, false)).join('');
+}
+
+function updateFilters(){
+  const genres = ['Tous', ...new Set(games.map(g => g.genre))];
+  document.getElementById('filter-chips').innerHTML = genres.map(g =>
+    `<button class="chip${g === activeFilter ? ' on' : ''}" onclick="setFilter('${g}',this)">${g}</button>`
+  ).join('');
+}
+
+function setFilter(g, btn){
+  activeFilter = g;
+  document.querySelectorAll('.chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderShopGames();
+}
+
+function filterShop(){ renderShopGames(); }
+
+function updateHeroStats(){
+  const el = document.getElementById('hs-games');
+  if(el) el.textContent = games.length;
+}
+
+/* ── GAME MODAL ─────────────────────────── */
+function openGameModal(id){
+  const g = games.find(x => x.id === id);
+  if(!g) return;
+  document.getElementById('gm-title').textContent = g.title;
+  const imgWrap = document.getElementById('gm-img');
+  imgWrap.innerHTML = g.image
+    ? `<img src="${g.image}" alt="${esc(g.title)}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<span style="font-size:5rem;">${g.emoji || '🎮'}</span>`;
+  document.getElementById('gm-genre').textContent = g.genre;
+  document.getElementById('gm-price').textContent = fmt(g.price) + ' FCFA';
+  document.getElementById('gm-desc').textContent  = g.desc || 'Un excellent jeu PC disponible chez GameHub.';
+  document.getElementById('gm-add-btn').onclick   = () => { addToCart(id); closeOverlay('overlay-game'); };
+  openOverlay('overlay-game');
+  trackGameView(id, g.title);
+}
+
+/* ── CART ───────────────────────────────── */
+function addToCart(id){
+  const g = games.find(x => x.id === id);
+  if(!g) return;
+  const ex = cart.find(c => c.id === id);
+  if(ex) ex.qty++;
+  else   cart.push({...g, qty: 1});
+  updateCartBadge();
+  // Animate badge
+  const badge = document.getElementById('cart-badge');
+  badge.style.transform = 'scale(1.5)';
+  setTimeout(() => badge.style.transform = 'scale(1)', 200);
+  toast(`✅ ${g.title} ajouté au panier !`);
+  trackCartAdd(g.title);
+}
+
+function updateCartBadge(){
+  document.getElementById('cart-badge').textContent = cart.reduce((s, c) => s + c.qty, 0);
+}
+
+function renderCart(){
+  const total  = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const empty  = document.getElementById('cart-empty-state');
+  const content= document.getElementById('cart-content');
+  if(!cart.length){ empty.style.display = 'block'; content.style.display = 'none'; return; }
+  empty.style.display   = 'none';
+  content.style.display = 'block';
+
+  document.getElementById('cart-items-list').innerHTML = cart.map(c => `
+    <div class="cart-item">
+      <div class="ci-thumb">${c.image ? `<img src="${c.image}" alt="">` : (c.emoji || '🎮')}</div>
+      <div class="ci-info">
+        <div class="ci-name">${esc(c.title)}</div>
+        <div class="ci-genre">${esc(c.genre)}</div>
+        <div class="ci-price">${fmt(c.price * c.qty)} FCFA</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${c.id}',-1)">−</button>
+          <span class="qty-num">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${c.id}',1)">+</button>
+        </div>
+        <button class="btn-danger" onclick="removeFromCart('${c.id}')">✕ Retirer</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('cart-summary-rows').innerHTML = cart.map(c =>
+    `<div class="cart-row"><span style="color:var(--muted2);font-size:0.85rem;">${esc(c.title)} ×${c.qty}</span><span style="font-weight:700;font-size:0.85rem;">${fmt(c.price*c.qty)} F</span></div>`
+  ).join('');
+  document.getElementById('cart-total-val').textContent = fmt(total) + ' FCFA';
+}
+
+function changeQty(id, d){
+  const i = cart.findIndex(c => c.id === id);
+  if(i < 0) return;
+  cart[i].qty += d;
+  if(cart[i].qty <= 0) cart.splice(i, 1);
+  updateCartBadge();
+  renderCart();
+}
+
+function removeFromCart(id){
+  cart = cart.filter(c => c.id !== id);
+  updateCartBadge();
+  renderCart();
+  toast('🗑️ Article retiré du panier.');
+}
+
+function clearCart(){
+  if(!confirm('Vider le panier ?')) return;
+  cart = [];
+  updateCartBadge();
+  renderCart();
+}
+
+function orderWA(){
+  if(!cart.length) return;
+  const lines = cart.map(c => `• ${c.title} × ${c.qty} = ${fmt(c.price * c.qty)} FCFA`).join('\n');
+  const total  = cart.reduce((s, c) => s + c.price * c.qty, 0);
+  openWA(`🎮 *Commande GameHub*\n\n${lines}\n\n*TOTAL : ${fmt(total)} FCFA*\n\nBonjour, je souhaite commander ces jeux. Merci !`);
+  trackOrder();
+}
+
+/* ── CONTACT ────────────────────────────── */
+function sendContact(){
+  const name    = document.getElementById('c-name').value.trim();
+  const subject = document.getElementById('c-subject').value.trim();
+  const msg     = document.getElementById('c-msg').value.trim();
+  if(!name || !msg){ toast('❌ Veuillez remplir votre nom et votre message.', true); return; }
+  const text = `👤 *${name}*\n📋 *Sujet :* ${subject || '(sans sujet)'}\n\n💬 ${msg}`;
+  openWA(text);
+  ['c-name','c-subject','c-msg'].forEach(id => document.getElementById(id).value = '');
+  toast('✅ Redirection vers WhatsApp...');
+}
+
+/* ── WHATSAPP ───────────────────────────── */
+function openWA(msg){
+  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ── ADMIN ──────────────────────────────── */
+let editingId = null;
+
+function openAdminGate(){
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('pw-error').style.display = 'none';
+  openOverlay('overlay-admin');
+}
+
+function checkAdmin(){
+  if(document.getElementById('admin-pw').value === ADMIN_CODE){
+    closeOverlay('overlay-admin');
+    nav('admin');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+}
+
+function logoutAdmin(){ nav('home'); toast('👋 Déconnecté du panneau admin.'); }
+
+function switchTab(tab){
+  ['add','manage','preview','analytics'].forEach(t => {
+    document.getElementById('admin-tab-'+t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+  });
+  if(tab === 'manage')   renderAdminList();
+  if(tab === 'preview')  renderAdminPreview();
+  if(tab === 'analytics') renderAnalytics();
+}
+
+function previewImg(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgData = e.target.result;
+    document.getElementById('a-img-url').value = '';
+    const prev = document.getElementById('a-img-preview');
+    prev.src = imgData; prev.style.display = 'block';
+    document.getElementById('upload-placeholder').style.display = 'none';
+    livePreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewImgUrl(url){
+  if(!url){ imgData = null; return; }
+  imgData = url;
+  const prev = document.getElementById('a-img-preview');
+  prev.src = url; prev.style.display = 'block';
+  document.getElementById('upload-placeholder').style.display = 'none';
+  livePreview();
+}
+
+function livePreview(){
+  document.getElementById('live-preview-wrap').style.display = 'block';
+  const title = document.getElementById('a-title').value || 'Nom du jeu...';
+  const genre = document.getElementById('a-genre').value || 'Genre';
+  const priceRaw = parseInt(document.getElementById('a-price').value) || 0;
+  const emoji = document.getElementById('a-emoji').value || '🎮';
+  const promo = parseInt(document.getElementById('a-promo').value) || 0;
+  const finalPrice = promo > 0 ? Math.round(priceRaw * (1 - promo/100)) : priceRaw;
+
+  document.getElementById('prev-title').textContent = title;
+  document.getElementById('prev-genre').textContent = genre;
+  document.getElementById('prev-price').textContent = fmt(finalPrice);
+
+  // Promo badge
+  const promoBadge = document.getElementById('prev-promo-badge');
+  if(promo > 0){
+    promoBadge.style.display = 'block';
+    document.getElementById('prev-promo-val').textContent = promo;
+  } else {
+    promoBadge.style.display = 'none';
+  }
+
+  // Thumb
+  const thumb = document.getElementById('prev-thumb');
+  if(imgData){
+    thumb.innerHTML = `<img src="${imgData}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    thumb.style.fontSize = '0';
+  } else {
+    thumb.innerHTML = `<span style="font-size:4rem;">${emoji}</span>`;
+  }
+}
+
+function publishGame(){
+  const title = document.getElementById('a-title').value.trim();
+  const genre = document.getElementById('a-genre').value;
+  const price = parseInt(document.getElementById('a-price').value);
+  const emoji = document.getElementById('a-emoji').value || '🎮';
+  const desc  = document.getElementById('a-desc').value.trim();
+  const promo = parseInt(document.getElementById('a-promo').value) || 0;
+  if(!title){ toast('❌ Le nom du jeu est obligatoire.', true); return; }
+  if(!price || price <= 0){ toast('❌ Le prix doit être supérieur à 0.', true); return; }
+
+  if(editingId){
+    // MODE ÉDITION
+    const i = games.findIndex(x => x.id === editingId);
+    if(i >= 0){
+      games[i] = { ...games[i], title, genre, price, emoji, desc, promo, image: imgData || games[i].image };
+    }
+    editingId = null;
+    document.getElementById('form-mode-label').textContent = '➕ Ajouter un nouveau jeu';
+    document.getElementById('publish-btn').textContent = '⚡ Publier le jeu';
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+    toast(`✏️ "${title}" mis à jour !`);
+  } else {
+    // MODE CRÉATION
+    const g = { id:'g'+Date.now(), title, genre, price, emoji, desc, promo, image: imgData||null, at: Date.now() };
+    games.unshift(g);
+    toast(`⚡ "${title}" publié avec succès !`);
+  }
+
+  save();
+  renderAll();
+  resetForm();
+}
+
+function resetForm(){
+  ['a-title','a-price','a-desc','a-img-url','a-promo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('a-emoji').value = '🎮';
+  document.getElementById('a-genre').value = 'Action';
+  document.getElementById('a-img-preview').style.display = 'none';
+  document.getElementById('upload-placeholder').style.display = 'block';
+  document.getElementById('a-img-file').value = '';
+  document.getElementById('live-preview-wrap').style.display = 'none';
+  imgData = null;
+  editingId = null;
+  document.getElementById('form-mode-label').textContent = '➕ Ajouter un nouveau jeu';
+  document.getElementById('publish-btn').textContent = '⚡ Publier le jeu';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+}
+
+function editGame(id){
+  const g = games.find(x => x.id === id);
+  if(!g) return;
+  switchTab('add');
+  editingId = id;
+  document.getElementById('a-title').value = g.title;
+  document.getElementById('a-genre').value = g.genre;
+  document.getElementById('a-price').value = g.price;
+  document.getElementById('a-emoji').value = g.emoji || '🎮';
+  document.getElementById('a-desc').value  = g.desc || '';
+  document.getElementById('a-promo').value = g.promo || 0;
+  imgData = g.image || null;
+  if(imgData){
+    const prev = document.getElementById('a-img-preview');
+    prev.src = imgData; prev.style.display = 'block';
+    document.getElementById('upload-placeholder').style.display = 'none';
+  }
+  document.getElementById('form-mode-label').textContent = `✏️ Modifier : ${g.title}`;
+  document.getElementById('publish-btn').textContent = '💾 Enregistrer les modifications';
+  document.getElementById('cancel-edit-btn').style.display = 'inline-flex';
+  livePreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast(`✏️ Édition de "${g.title}" en cours.`);
+}
+
+function cancelEdit(){ resetForm(); toast('Édition annulée.'); }
+
+function deleteGame(id){
+  const g = games.find(x => x.id === id);
+  if(!g) return;
+  if(!confirm(`Supprimer "${g.title}" ?`)) return;
+  games = games.filter(x => x.id !== id);
+  save();
+  renderAll();
+  toast('🗑️ Jeu supprimé.');
+}
+
+function renderAdminList(){
+  const el    = document.getElementById('admin-game-list');
+  const empty = document.getElementById('admin-no-games');
+  const q     = (document.getElementById('admin-search')?.value || '').toLowerCase();
+  const list  = games.filter(g => !q || g.title.toLowerCase().includes(q) || g.genre.toLowerCase().includes(q));
+  if(!list.length){ el.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  el.innerHTML = list.map(g => {
+    const finalPrice = g.promo > 0 ? Math.round(g.price*(1-g.promo/100)) : g.price;
+    const promoHTML  = g.promo > 0
+      ? `<span style="background:rgba(57,255,20,0.12);color:var(--lime);border:1px solid rgba(57,255,20,0.25);padding:1px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;">-${g.promo}%</span>`
+      : '';
+    return `
+    <div class="admin-game-row">
+      <div class="agr-thumb">${g.image ? `<img src="${g.image}" alt="">` : (g.emoji || '🎮')}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="agr-name">${esc(g.title)} ${promoHTML}</div>
+        <div class="agr-genre">${esc(g.genre)}</div>
+      </div>
+      <div class="agr-price">${fmt(finalPrice)} F</div>
+      <button style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.2);color:var(--cyan);padding:0.35rem 0.9rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-weight:700;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,245,255,0.18)'" onmouseout="this.style.background='rgba(0,245,255,0.08)'" onclick="editGame('${g.id}')">✏️ Éditer</button>
+      <button class="btn-danger" onclick="deleteGame('${g.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderAdminPreview(){
+  const el    = document.getElementById('admin-preview-grid');
+  const empty = document.getElementById('admin-preview-empty');
+  if(!games.length){ el.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  el.innerHTML = games.map((g,i) => cardHTML(g, i===0)).join('');
+}
+
+function updateStats(){
+  document.getElementById('s-total').textContent = games.length;
+  const genres = new Set(games.map(g => g.genre));
+  document.getElementById('s-genres').textContent = genres.size;
+  const avg = games.length ? Math.round(games.reduce((s,g)=>s+g.price,0)/games.length) : 0;
+  document.getElementById('s-avg').textContent = avg ? fmt(avg)+' F' : '0 F';
+  const promoCount = games.filter(g => g.promo > 0).length;
+  document.getElementById('s-promo').textContent = promoCount;
+}
+
+/* ── NAVIGATION ─────────────────────────── */
+function nav(page){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn[data-page]').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const active = document.querySelector(`.nav-btn[data-page="${page}"]`);
+  if(active) active.classList.add('active');
+  // Close mobile menu
+  document.getElementById('nav-links').classList.remove('open');
+  // Special renders
+  if(page === 'cart')  renderCart();
+  if(page === 'shop')  renderShopGames();
+  if(page === 'admin'){ switchTab('add'); renderAdminList(); updateStats(); }
+  // Track page visit (sauf admin)
+  if(page !== 'admin') trackPage(page);
+  // Scroll
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  observeReveal();
+}
+
+function toggleMenu(){
+  document.getElementById('nav-links').classList.toggle('open');
+}
+
+/* ── OVERLAYS ───────────────────────────── */
+function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+
+/* ── TOAST ──────────────────────────────── */
+let _toastTimer;
+function toast(msg, err = false){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (err ? ' err' : '');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ── HELPERS ────────────────────────────── */
+function fmt(n){ return Number(n).toLocaleString('fr-FR'); }
+function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ── ANALYTICS ENGINE ───────────────────── */
+const AN_KEY = 'gamehub_analytics_v1';
+let analytics = { visits:[], events:[], pageHits:{}, gameViews:{}, cartAdds:0, orders:0 };
+
+function anSave(){
+  try { localStorage.setItem(AN_KEY, JSON.stringify(analytics)); } catch(e){}
+}
+function anLoad(){
+  try {
+    const d = localStorage.getItem(AN_KEY);
+    if(d) analytics = { ...analytics, ...JSON.parse(d) };
+  } catch(e){}
+}
+
+// Enregistre une visite de page
+function trackPage(page){
+  const now = Date.now();
+  analytics.visits.push({ page, t: now });
+  analytics.pageHits[page] = (analytics.pageHits[page] || 0) + 1;
+  // Garder seulement les 200 dernières visites
+  if(analytics.visits.length > 200) analytics.visits = analytics.visits.slice(-200);
+  logEvent('📄', `Page visitée : <strong>${pageName(page)}</strong>`);
+  anSave();
+}
+
+// Enregistre un événement personnalisé
+function trackEvent(icon, label, detail){
+  analytics.events.unshift({ icon, label, detail: detail||'', t: Date.now() });
+  if(analytics.events.length > 100) analytics.events = analytics.events.slice(0, 100);
+  anSave();
+}
+
+// Enregistre la consultation d'une fiche jeu
+function trackGameView(gameId, title){
+  analytics.gameViews[gameId] = analytics.gameViews[gameId] || { title, count: 0 };
+  analytics.gameViews[gameId].count++;
+  analytics.gameViews[gameId].title = title; // màj si renommé
+  logEvent('🎮', `Fiche vue : <strong>${title}</strong>`);
+  anSave();
+}
+
+// Enregistre un ajout au panier
+function trackCartAdd(title){
+  analytics.cartAdds = (analytics.cartAdds || 0) + 1;
+  logEvent('🛒', `Ajout panier : <strong>${title}</strong>`);
+  anSave();
+}
+
+// Enregistre une commande WA
+function trackOrder(){
+  analytics.orders = (analytics.orders || 0) + 1;
+  logEvent('💬', `Commande envoyée sur <strong>WhatsApp</strong>`);
+  anSave();
+}
+
+function logEvent(icon, html){
+  if(!analytics.events) analytics.events = [];
+  analytics.events.unshift({ icon, html, t: Date.now() });
+  if(analytics.events.length > 100) analytics.events = analytics.events.slice(0, 100);
+}
+
+function pageName(p){
+  return { home:'Accueil', shop:'Boutique', contact:'Contact', cart:'Panier', admin:'Admin' }[p] || p;
+}
+
+function todayVisits(){
+  const today = new Date().toDateString();
+  return (analytics.visits || []).filter(v => new Date(v.t).toDateString() === today).length;
+}
+
+function clearAnalytics(){
+  if(!confirm('Effacer toutes les statistiques ?')) return;
+  analytics = { visits:[], events:[], pageHits:{}, gameViews:{}, cartAdds:0, orders:0 };
+  anSave();
+  renderAnalytics();
+  toast('🗑️ Statistiques effacées.');
+}
+
+/* ── RENDER ANALYTICS ───────────────────── */
+function renderAnalytics(){
+  // KPIs
+  document.getElementById('an-visits').textContent = (analytics.visits||[]).length;
+  document.getElementById('an-today').textContent  = todayVisits();
+  document.getElementById('an-carts').textContent  = analytics.cartAdds || 0;
+  document.getElementById('an-orders').textContent = analytics.orders || 0;
+  const totalViews = Object.values(analytics.gameViews||{}).reduce((s,v)=>s+v.count,0);
+  document.getElementById('an-views').textContent  = totalViews;
+
+  // Pages
+  const pages = ['home','shop','cart','contact','admin'];
+  const maxPage = Math.max(1, ...pages.map(p => analytics.pageHits[p]||0));
+  document.getElementById('an-pages-list').innerHTML = pages.map(p => {
+    const count = analytics.pageHits[p] || 0;
+    const pct = Math.round((count/maxPage)*100);
+    return `
+    <div style="margin-bottom:0.8rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
+        <span style="font-size:0.85rem;font-weight:700;">${pageName(p)}</span>
+        <span style="font-size:0.82rem;color:var(--cyan);font-weight:700;">${count} visite${count>1?'s':''}</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--cyan),var(--magenta));border-radius:10px;transition:width 0.6s ease;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Jeux les + vus
+  const gameList = Object.entries(analytics.gameViews||{})
+    .sort((a,b) => b[1].count - a[1].count).slice(0,8);
+  const el = document.getElementById('an-games-list');
+  const emptyEl = document.getElementById('an-games-empty');
+  if(!gameList.length){ el.innerHTML=''; emptyEl.style.display='block'; }
+  else {
+    emptyEl.style.display='none';
+    const maxG = gameList[0][1].count;
+    el.innerHTML = gameList.map(([id,v],i) => {
+      const pct = Math.round((v.count/maxG)*100);
+      const medal = ['🥇','🥈','🥉'][i] || '▸';
+      return `
+      <div style="margin-bottom:0.8rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
+          <span style="font-size:0.85rem;font-weight:700;">${medal} ${esc(v.title)}</span>
+          <span style="font-size:0.82rem;color:var(--gold);font-weight:700;">${v.count} vue${v.count>1?'s':''}</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gold),var(--magenta));border-radius:10px;transition:width 0.6s ease;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Journal événements
+  const evEl = document.getElementById('an-events-list');
+  const evEmpty = document.getElementById('an-events-empty');
+  const evs = analytics.events || [];
+  if(!evs.length){ evEl.innerHTML=''; evEmpty.style.display='block'; }
+  else {
+    evEmpty.style.display='none';
+    evEl.innerHTML = evs.slice(0,50).map(ev => {
+      const d = new Date(ev.t);
+      const time = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      return `
+      <div style="display:flex;align-items:center;gap:0.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.6rem 0.9rem;">
+        <span style="font-size:1.1rem;flex-shrink:0;">${ev.icon||'⚡'}</span>
+        <span style="flex:1;font-size:0.82rem;color:var(--text);" ${ev.html?`>`+ev.html:`>${esc(ev.label||'')}`}</span>
+        <span style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">${time}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ── INIT ───────────────────────────────── */
+anLoad();
+load();
+</script>
+</body>
+</html>
